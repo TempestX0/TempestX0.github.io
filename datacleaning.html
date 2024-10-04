@@ -36,91 +36,258 @@
 
 
 							<h1 class="major">Data Cleaning</h1>
-							<h3>Create a Duplicate of the Data</h3>
-							<p>Before starting to make any edits to the raw date, it is often important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. If we make a mistake on the staging copy of the data, we can always recopy the original raw data.</p>
+							<p>To ensure data is ready for analysis, the data must be free of duplicates, irrelevant values, improper formatting, and any other errors. 
+								To facilitate this it is necessary to clean the data.</p>
+							<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema is project named "video".</p>
+							<h4>top_rated_movies</h4>
+											<ul>
+												<li>populairity (double)</li>
+												<li>release_date (text)</li>
+												<li>title (text)</li>
+												<li>vote_average (double)</li>
+												<li>genre (text)</li>
+											</ul>	
+							<span class="image fit"><img src="images/datacleaning.png" width="500" height="500" alt="" /></span>
+							<h3>1.0 Create a Duplicate of the Data</h3>
+							<p>Before starting to make any edits to the raw date, it is often important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. 
+								If we make a mistake on the staging copy of the data, we can always recopy the original raw data.</p>
 							<pre><code>
+# ------------------------------- 1.0 Create staging copy of table -----------------------------------
+
+# Remove this table if it already exists
 drop table if exists video.top_rated_movies_staging
 ;
 
+# Create a staging table identical to top_rated_movies
 create table video.top_rated_movies_staging
 like video.top_rated_movies
 ;
 
+# Populate the new staging table with all data from the original top_rated_movies
 insert video.top_rated_movies_staging
 select *
 from video.top_rated_movies
 ;
+
+# Verify data was imported correctly
+SELECT * 
+FROM video.top_rated_movies_staging
+order by title
+;
 							</code></pre>
 
 
-							<h3>Removing Duplicates</h3>
-							<p>In order to clean raw data we need to remove any duplicate data. This can be achieved by assigning a row number to data and partitioning the data based on any criteria that would indicate duplicate data. In the interest of making the SQL code easy to read, I typically would use a CTE to partition the duplicates and then display only the duplicate data.</p>
+							<h3>2.0 Removing Duplicates</h3>
+							<p>In order to clean raw data we need to remove any duplicate data. This can be achieved by assigning a row number to data and partitioning the data based on any criteria that would indicate duplicate data. 
+								In the interest of making the SQL code easy to read, I typically would use a CTE to partition the data by the values that would indicate there is indeed a duplicate value and then remove only the duplicate data.
+								Also, because MySQL does not support deleting values via a CTE, I create a 2nd staging table.</p>
 							<pre><code>
+# ------------------------------- 2.0 Identify duplicate values -----------------------------------
+
+# Count number of movies with an identical title. Not necessary with this data, but can be helpful determining how to partition the data in the next step.
+select title, count(title)
+from movies.top_rated
+group by title
+order by count(title) desc
+;
+
+# Display only duplicate titles that also have matching release date, popularity, and vote_average values
 with duplicate_cte as
 (
 select *,
-row_number()Over(partition by title)as row_num
-video.top_rated_movies_staging
+row_number()Over(partition by popularity, release_date, title, vote_average)as row_num
+from video.top_rated_movies
 )
-delete * from duplicate_cte
+select * from duplicate_cte
 where row_num > 1
+;
+
+# ------------------------------- 2.1 Remove duplicate values -----------------------------------
+
+# Remove this table if it already exists
+drop table if exists video.top_rated_movies_staging2
+;
+
+# Create a staging table identical to top_rated_movies_staging
+create table video.top_rated_movies_staging2
+like video.top_rated_movies_staging
+;
+
+# Add new row_num column for filtering duplicates
+alter table video.top_rated_movies_staging2
+add column row_num int
+;
+
+# Populate the new staging2 table with all data from the first staging top_rated_movies table, including row_num.
+insert into video.top_rated_movies_staging2
+SELECT *,
+row_number()Over(partition by popularity, release_date, title, vote_average)as row_num
+from video.top_rated_movies_staging
+;
+
+# Duplicate values (indicated by row_num) are deleted.
+delete
+from video.top_rated_movies_staging2
+where row_num > 1
+;
+
+# Remove the row_num colum from the table since it is no longer needed.
+alter table video.top_rated_movies_staging2
+drop column row_num
 ;
 							</code></pre>
 
 
-							<h3>Standardize the Data</h3>
-							<p>In order to make the data more readable and usable the next step is to standardize the data. This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. This can also include items such as extras spaces, ALL CAPS, and unnecessary punctuation.</p>
+							<h3>3.0 Standardize the Data</h3>
+							<p>In order to make the data more readable and usable the next step is to standardize the data. This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
+								This can also include items such as extras spaces, ALL CAPS, and unnecessary punctuation.</p>
 							<p>Here are a few bits of code that would accomplish several elements of standardizing the data.</p>
 							<pre><code>
-select discinct title
-video.top_rated_movies_staging
-order by title
-;
+# ------------------------------- 3.0 Standardize the Data -----------------------------------
 
-select title, (trim(title))
-video.top_rated_movies_staging
-order by title
-;
-
-update video.top_rated_movies_staging
+# Trim leading and trailing spaces from the title.
+update video.top_rated_movies_staging2
 set title = trim(title)
 ;
 
-select *
-from video.top_rated_movies_staging
-where genre like 'Sci%'
-; 
-
-update video.top_rated_movies_staging
-set genre = 'Sci-fi'
-where genre like '%Sci%'
+# Trim leading and trailing spaces from the genre.
+update video.top_rated_movies_staging2
+set genre = trim(genre)
 ;
 
-select distinct format, trim(trailing '.' from format)
-from video.top_rated_movies_staging
-order by 1
-;
-
-select release_date
-from video.top_rated_movies_staging
-;
-
-select release_date,
-str_to_date(release_date, '%m/%d/%Y')
-from video.top_rated_movies_staging
-;
-
-update video.top_rated_movies_staging
+# Put date in correct format.
+update video.top_rated_movies_staging2
 set release_date = str_to_date(release_date, '%m/%d/%Y')
 ;
 
-alter table video.top_rated_movies_staging
-modify column release_date date
-; 
+# Change date column from text to date data type.
+alter table video.top_rated_movies_staging2
+modify column release_date date; 
+
+# Detect and fix a varity of formatting, incorrect data, and other display errors.
+select *
+from video.top_rated_movies_staging2
+where title like '%RETURN%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'Return'
+where title = 'RETURN'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'whatso%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'Everly'
+where title like 'whatso%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Finding%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Finding 'Ohana"
+where title like 'Finding%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Neuilly%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Neuilly Sa Mère"
+where title like 'Neuilly%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Suite Fra%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Suite Française"
+where title like 'Suite Fra%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'TAYLOR SWIFT%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Taylor Swift: The Eras Tour"
+where title like 'TAYLOR SWIFT%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Y Tu Mam%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Y Tu Mamá También"
+where title like 'Y Tu Mam%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Sword Art Online%'
+;
+
+update video.top_rated_movies_staging2
+set title = "Sword Art Online The Movie: Ordinal Scale"
+where title like 'Sword Art Online%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Dragon Ball Z: Bro%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'Dragon Ball Z: Broly - The Legendary Super Saiyan%'
+where title like 'Dragon Ball Z: Bro%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'French Fried%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'French Fried Vacation 2: The Bronzés go Skiing'
+where title like 'French Fried%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Houba%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'Houba! On the Trail of the Marsupilami'
+where title like 'Houba%'
+;
+
+select *
+from video.top_rated_movies_staging2
+where title like 'Pok%'
+;
+
+update video.top_rated_movies_staging2
+set title = 'Pokémon Detective Pikachu'
+where title like 'Pok%'
+;
 							</code></pre>
 
 
-							<h3>Remove Null or Blank Values</h3>
+							<h3>4.0 Remove Null or Blank Values</h3>
 							<p>text goes here</p>
 							<pre><code>
 select *
