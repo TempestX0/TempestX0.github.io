@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Generic - Hyperspace by HTML5 UP</title>
+		<title>Data Cleaning</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -36,9 +36,11 @@
 
 
 							<h1 class="major">Data Cleaning</h1>
-							<p>To ensure data is ready for analysis, the data must be free of duplicates, irrelevant values, improper formatting, and any other errors. 
+							<p>To ensure data is ready for analysis, the data must be free of duplicates, irrelevant values, improper formatting, and any other inefficiencies that may negatively impact system performance and data accuracy. 
+								Having a well maintained database with reliable and percise information allows users to make better data driven decisions.
 								To facilitate this it is necessary to clean the data.</p>
-							<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema is project named "video".</p>
+								<span class="image right"><img src="images/datacleaning.png" width="350" height="280" alt="" /></span>							
+								<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
 							<h4>top_rated_movies</h4>
 											<ul>
 												<li>populairity (double)</li>
@@ -47,7 +49,7 @@
 												<li>vote_average (double)</li>
 												<li>genre (text)</li>
 											</ul>	
-							<span class="image fit"><img src="images/datacleaning.png" width="500" height="500" alt="" /></span>
+
 							<h3>1.0 Create a Duplicate of the Data</h3>
 							<p>Before starting to make any edits to the raw date, it is often important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. 
 								If we make a mistake on the staging copy of the data, we can always recopy the original raw data.</p>
@@ -139,8 +141,9 @@ drop column row_num
 
 
 							<h3>3.0 Standardize the Data</h3>
-							<p>In order to make the data more readable and usable the next step is to standardize the data. This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
-								This can also include items such as extras spaces, ALL CAPS, and unnecessary punctuation.</p>
+							<p>In order to make the data more readable and usable the next step is to standardize the data. 
+								This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
+								This can also include items such as extras spaces, ALL CAPS, and unnecessary or incompatible punctuation.</p>
 							<p>Here are a few bits of code that would accomplish several elements of standardizing the data.</p>
 							<pre><code>
 # ------------------------------- 3.0 Standardize the Data -----------------------------------
@@ -162,7 +165,8 @@ set release_date = str_to_date(release_date, '%m/%d/%Y')
 
 # Change date column from text to date data type.
 alter table video.top_rated_movies_staging2
-modify column release_date date; 
+modify column release_date date
+; 
 
 # Detect and fix a varity of formatting, incorrect data, and other display errors.
 select *
@@ -197,42 +201,12 @@ where title like 'Finding%'
 
 select *
 from video.top_rated_movies_staging2
-where title like 'Neuilly%'
-;
-
-update video.top_rated_movies_staging2
-set title = "Neuilly Sa Mère"
-where title like 'Neuilly%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Suite Fra%'
-;
-
-update video.top_rated_movies_staging2
-set title = "Suite Française"
-where title like 'Suite Fra%'
-;
-
-select *
-from video.top_rated_movies_staging2
 where title like 'TAYLOR SWIFT%'
 ;
 
 update video.top_rated_movies_staging2
 set title = "Taylor Swift: The Eras Tour"
 where title like 'TAYLOR SWIFT%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Y Tu Mam%'
-;
-
-update video.top_rated_movies_staging2
-set title = "Y Tu Mamá También"
-where title like 'Y Tu Mam%'
 ;
 
 select *
@@ -244,98 +218,29 @@ update video.top_rated_movies_staging2
 set title = "Sword Art Online The Movie: Ordinal Scale"
 where title like 'Sword Art Online%'
 ;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Dragon Ball Z: Bro%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'Dragon Ball Z: Broly - The Legendary Super Saiyan%'
-where title like 'Dragon Ball Z: Bro%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'French Fried%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'French Fried Vacation 2: The Bronzés go Skiing'
-where title like 'French Fried%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Houba%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'Houba! On the Trail of the Marsupilami'
-where title like 'Houba%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Pok%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'Pokémon Detective Pikachu'
-where title like 'Pok%'
-;
 							</code></pre>
 
 
 							<h3>4.0 Remove Null or Blank Values</h3>
-							<p>text goes here</p>
+							<p>While much of the raw data is very useful and can help provide useful insights, some data is simply not there.
+								Rather than waste resources on empty or null data fields, it can be be more efficient to remove these.
+							</p>
 							<pre><code>
 select *
-from video.top_rated_movies_staging
-where total_laid_off is null
-and percentage_laid_off is null
+from video.top_rated_movies_staging2
+where title is null
+or title = ''
 ;
 
-select *
-from video.top_rated_movies_staging
-where industry is null
-or industry = ''
-;
-
-select t1.industry, t2.industry
-from video.top_rated_movies_staging as t1
-join video.top_rated_movies_staging as t2
-	on t1.company = t2.company
-    and t1.location = t2.location
-where (t1.industry is null or t1.industry = '')
-and t2.industry is not null
-;
-
-
-update video.top_rated_movies_staging as t1
-join video.top_rated_movies_staging as t2
-	on t1.company = t2.company
-set t1.industry = t2.industry
-where (t1.industry is null or t1.industry = '')
-and t2.industry is not null
-;
-
-update world_layoffs.layoffs_staging2 
-set industry = null
-where industry = ''
-;
-								
+delete
+from video.top_rated_movies_staging2
+where title is null
+or title = ''
+;								
 							</code></pre>
 							
 
-						</code></pre>
 
-
-						<h3>title goes here</h3>
-						<p>text goes here</p>
-						<pre><code>
-code goes here
-						</code></pre>							
 							
 						</section>
 						</div>
