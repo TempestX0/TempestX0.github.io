@@ -22,7 +22,7 @@
 						<li><a href="index.html">Home</a></li>
 						<li><a href="datacleaning.html" class="active">Data Cleaning</a></li>
 						<li><a href="dataexploration.html">Data Exploration</a></li>	
-						<li><a href="tableau.html">Tableau Visualisations</a></li>					
+						<li><a href="dataexploration2.html">Advanced Data Exploration</a></li>					
 					</ul>
 				</nav>
 			</header>
@@ -36,10 +36,16 @@
 
 
 							<h1 class="major">Data Cleaning</h1>
-							<p>To ensure data is ready for analysis, the data must be free of duplicates, irrelevant values, improper formatting, and any other inefficiencies that may negatively impact system performance and data accuracy. 
+							<p>When we first import or access raw data we need to ensure data is ready for analysis.
+								It is important that the data be free of duplicates, irrelevant values, improper formatting, or any other inefficiencies that may negatively impact system performance and data accuracy. 
 								Having a well maintained database with reliable and percise information allows users to make better data driven decisions.
-								To facilitate this it is necessary to clean the data.</p>
-								<span class="image right"><img src="images/datacleaning.png" width="350" height="280" alt="" /></span>							
+								To facilitate this it is necessary to clean the data which consists of several steps.</p>
+								<ol>
+									<li>Create a staging copy of the raw data.</li>
+									<li>Remove duplicates.</li>
+									<li>Standardize the data.</li>
+									<li>Remove null or blank values</li>
+								</ol>								
 								<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
 							<h4>top_rated_movies</h4>
 											<ul>
@@ -143,7 +149,8 @@ drop column row_num
 							<h3>3.0 Standardize the Data</h3>
 							<p>In order to make the data more readable and usable the next step is to standardize the data. 
 								This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
-								This can also include items such as extras spaces, ALL CAPS, and unnecessary or incompatible punctuation.</p>
+								This can also include items such as extras spaces, ALL CAPS, and unnecessary or incompatible punctuation. 
+								It is important to note any columns that contain data that may be used later for joining multiple tables together.</p>
 							<p>Here are a few bits of code that would accomplish several elements of standardizing the data.</p>
 							<pre><code>
 # ------------------------------- 3.0 Standardize the Data -----------------------------------
@@ -169,36 +176,6 @@ modify column release_date date
 ; 
 
 # Detect and fix a varity of formatting, incorrect data, and other display errors.
-select *
-from video.top_rated_movies_staging2
-where title like '%RETURN%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'Return'
-where title = 'RETURN'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'whatso%'
-;
-
-update video.top_rated_movies_staging2
-set title = 'Everly'
-where title like 'whatso%'
-;
-
-select *
-from video.top_rated_movies_staging2
-where title like 'Finding%'
-;
-
-update video.top_rated_movies_staging2
-set title = "Finding 'Ohana"
-where title like 'Finding%'
-;
-
 select *
 from video.top_rated_movies_staging2
 where title like 'TAYLOR SWIFT%'

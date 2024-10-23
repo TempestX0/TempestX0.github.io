@@ -1,0 +1,334 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Advanced Data Exploration</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">BSkidmore</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="datacleaning.html">Data Cleaning</a></li>						
+						<li><a href="dataexploration.html">Data Exploration</a></li>
+						<li><a href="dataexploration2.html" class="active">Advanced Data Exploration</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Advanced Data Exploration</h1>
+
+							<h3>Video Game Data</h3>							
+							<p>
+								For this project I start with a vgsales.csv file I downloaded from Kaggle. 
+								I also have some additional tables containing other video game related data I will later join with the vgsales table for some additonal insights.
+								For this project, I have the following objectives...
+							</p>
+							<ol>
+								<li><a href="#staging">Create a Staging Copy</a></li>
+								<li><a href="#cleaning">Data Cleaning</a></li>
+								<li><a href="#missing">Input missing data</a></li>
+								<li><a href="#exploring1">Explore the data</a></li>
+								<li><a href="#joining">Join with addtional tables</a></li>
+								<li><a href="#exploring2">Additional data exploration</a></li>
+								<li><a href="#visualizations">Create multiple visualizations</a></li>
+							</ol>
+
+
+				
+				<!-- Staging -->
+					<section id="staging" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h3>1. Create a Staging Copy</h3>
+							<p>
+								Before starting making any changes to this data set it is important to make a staging copy so the original raw data is avaliable.
+							</p>
+							<pre><code>
+# Remove this table if it already exists
+drop table if exists videogames.vgsales_staging
+;
+# Create a staging table identical to top_rated_movies
+create table videogames.vgsales_staging
+like videogames.vgsales
+;
+# Populate the new staging table with all data from the original top_rated_movies
+insert videogames.vgsales_staging
+select *
+from videogames.vgsales
+;
+							</code></pre>
+						</div>
+					</section>
+					<br>
+
+
+
+
+				<!-- Cleaning -->
+					<section id="cleaning">
+						<div class="inner">				
+							<h3>2. Data Cleaning</h3>
+							<p>
+								Before that data can be used propperly, it is important to clean the data by addressing issues such as duplicates, missing data, incorrect information, and inconsistant formatting.
+							</p>
+							<h4>Duplicates</h4>
+							<p>
+								The first item I want do address is removing duplicate data.
+							</p>
+							<pre><code>
+with duplicate_cte as
+(
+select *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging
+)
+select * from duplicate_cte
+where row_num > 1
+;
+							</code></pre>
+							<span class="image"><img src="images/VideoGames1.png" alt="" /></span>
+							<p>
+								Here are the duplicates of a Madden NFL game for the PS3 and Need for Speed Most Wanted on PC and Xbox 360.
+								These will need to be removed using the same process I outlined in my Data Cleaning Project.
+							</p>
+							<pre><code>
+# Remove this table if it already exists
+drop table if exists videogames.vgsales_staging2
+;
+
+# Create a staging table identical to top_rated_movies_staging
+create table videogames.vgsales_staging2
+like videogames.vgsales_staging
+;
+
+# Add new row_num column for filtering duplicates
+alter table videogames.vgsales_staging2
+add column row_num int
+;
+
+# Populate the new staging2 table with all data from the first staging top_rated_movies table, including row_num.
+insert into videogames.vgsales_staging2
+SELECT *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging
+;
+
+# Duplicate values (indicated by row_num) are deleted.
+delete
+from videogames.vgsales_staging2
+where row_num > 1
+;
+
+# Remove the row_num colum from the table since it is no longer needed.
+alter table videogames.vgsales_staging2
+drop column row_num
+;
+
+# Verify duplicates have been removed
+with duplicate_cte as
+(
+select *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging2
+)
+select * from duplicate_cte
+where row_num > 1
+;
+							</code></pre>
+							<h4>Extra Spaces</h4>
+							<p>
+								Often when data is input using a spreadsheet editor, an extra space will automatically get added to the end of an entry.
+								This can cause data to show up as unique, when it should in fact be identical.
+							</p>
+							<pre><code>
+# Trim leading and trailing spaces from the title.
+update videogames.vgsales_staging2
+set `name` = trim(`name`), platform = trim(platform), genre = trim(genre), publisher = trim(publisher)
+;
+							</code></pre>
+							<h4>Inconsistant Naming</h4>
+							<p>	
+								Next is to check if all of the publisher data is input correctly and they are using the same name for each unique pulbisher.
+								Going through the output shows this multiple publishers are listed using different names, but should be identical.
+							</p>
+							<pre><code>
+# Display every unique publsher								
+select distinct publisher
+from videogames.vgsales
+order by publisher
+;
+							</code></pre>
+
+
+							<span class="image"><img src="images/VideoGames2.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames3.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames4.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames5.png" alt="" /></span>
+							<p>	
+								In these above examples where the data is referring to the same publisher, but is listed differently I will run a quick check to see what the most popular entery is.
+								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH", the first is included once, while the 2nd has 3 enteries.
+								In this case I will update the 1 to match the other 3. 
+								I will often run an internet search to see what is listed on the company website or some other trusted source to ensure I am using the most accurate title.
+								
+
+							</p>
+							<pre><code>
+# look at all of the different enteries for Ascaron to see which is more common.
+select * 
+from videogames.vgsales_staging2
+where publisher like 'Ascaron%'
+;
+
+# update any publisher starting with "Ascaron" and change it to "Ascaron Entertainment".
+update videogames.vgsales_staging2
+set publisher = 'Ascaron Entertainment'
+where publisher like 'Ascaron%'
+;
+
+# look at all of the different enteries for Daedalic to see which is more common.
+select * 
+from videogames.vgsales_staging2
+where publisher like 'Daedalic%'
+;
+
+# update publisher information to "Daedalic Entertainment"
+update videogames.vgsales_staging2
+set publisher = 'Daedalic Entertainment'
+where publisher like 'Daedalic%'
+;
+							</code></pre>
+						</div>
+					</section>
+
+
+
+				<!-- Missing -->
+					<section id="missing" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>3. Input Missing Data</h3>
+							<h4></h4>
+							<p>
+								It seems there about 100 games with the publisher listed as "unknown", so this may take some time.
+								The first game on this list is "Gran Turismo Concept 2001 Tokyo" and checking online the publisher is the same as the rest of the Gran Turismo series, "Sony Computer Entertainment".
+								I would run similar code to update the remaining values.	
+							</p>
+
+							<pre><code>
+select *
+from videogames.vgsales
+where publisher = 'Unknown'
+order by platform
+;
+
+update videogames.vgsales
+set publisher = 'Sony Computer Entertainment'
+where name = 'Gran Turismo Concept 2001 Tokyo'
+;
+							</code></pre>	
+						</div>
+					</section>	
+					<br>
+
+
+
+				<!-- Exploring -->
+					<section id="exploring1">
+						<div class="inner">		
+							<h3>4. Explore the data</h3>
+							<p>
+								Now that the data has been cleaned and missing data has been filled in, it is time to start exploring the data to see what sorts of insights we can find.
+							</p>
+							<pre><code>
+							</code></pre>	
+						</div>
+					</section>	
+
+
+
+				<!-- Joining -->
+					<section id="joining" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>5. Join with addtional tables</h3>
+							<p>
+								When joining tables it is important to have some data that can be used to link that data together.
+								Often this could be something specific like an employee id or more general like a video game platform. 
+							</p>
+							<pre><code>
+							</code></pre>
+						</div>
+					</section>		
+					<br>
+
+
+
+
+				<!-- Exploring2 -->
+					<section id="exploring2">
+						<div class="inner">	
+							<h3>6. Additional data exploration</h3>
+							<p>
+								Now that multiple data tables are connected together, I can further explore the data and find other interesting details.
+							</p>
+							<pre><code>
+							</code></pre>	
+						</div>
+					</section>	
+
+
+
+
+				<!-- Visualizations -->
+					<section id="visualizations" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>7. Create multiple visualizations</h3>
+							<p>
+								Now that I have a good idea of what insights these data sets can provide, I can begin to create some interesting dashboards to highlight this.
+							</p>
+						</div>
+					</section>	
+
+	
+
+
+
+			</div>
+
+
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Tempest Inc. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
