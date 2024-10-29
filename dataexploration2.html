@@ -90,7 +90,7 @@ from videogames.vgsales
 							</p>
 							<h4>Duplicates</h4>
 							<p>
-								The first item I want do address is removing duplicate data.
+								The first item I want do address is to remove any duplicate data.
 							</p>
 							<pre><code>
 with duplicate_cte as
@@ -241,7 +241,56 @@ update videogames.vgsales
 set publisher = 'Sony Computer Entertainment'
 where name = 'Gran Turismo Concept 2001 Tokyo'
 ;
+
+update videogames.vgsales_staging2
+set publisher = 'Nintendo'
+where name = 'Ultimate NES Remix'
+;
+
+update videogames.vgsales_staging2
+set publisher = 'Kadokawa Shoten'
+where name = 'AKB48+Me'
+;
+							</code></pre>
+							<p>
+								In several cases a game will be developed for release on mulitple systems by the same publisher. 
+								In the case of "Time Travelers", the PSP and PS Vita version already have the publisher set correctly, while the 3DS version is currently "unknown".
+								While a quick internet search reveals the publisher to be "Level-5", however I can see the other 2 enteries use "Level 5".
+								Therefore for the 3DS version, I will update the the 3DS version to match the existing publisher name.
+							</p>
+							<span class="image"><img src="images/VideoGames6.png" alt="" /></span>
+							<pre><code>
+select *
+from videogames.vgsales_staging2
+where name like 'Time Travelers'
+;
+
+update videogames.vgsales_staging2
+set publisher = 'Level 5'
+where name = 'Time Travelers'
+;
 							</code></pre>	
+							<p>
+								Some games will be published by different publishers in different regions.
+								In the case of "Horse Life 4: My Horse, My Friend, My Champion", the North American publisher is "Independent Arts Software" and the European publisher is "Koch Media".
+								Based on the sales data this game is the EU version. 
+								Furthermore, pulling up ever game with a title like "Horse Life" reveals the North American version is not included in this dataset.
+								This could be something I can add if necessary, but for now I will just update the publisher for the EU version of Horse Life 4 on the 3DS.
+							</p>
+							<span class="image"><img src="images/VideoGames7.png" alt="" /></span>
+							<pre><code>
+
+select *
+from videogames.vgsales_staging2
+where name like '%Horse Life%'
+;	
+
+update videogames.vgsales_staging2
+set publisher = 'Koch Media'
+where name = 'Horse Life 4: My Horse, My Friend, My Champion'
+;
+	
+							</code></pre>
 						</div>
 					</section>	
 					<br>

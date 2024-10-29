@@ -41,10 +41,12 @@
 								Having a well maintained database with reliable and percise information allows users to make better data driven decisions.
 								To facilitate this it is necessary to clean the data which consists of several steps.</p>
 								<ol>
-									<li>Create a staging copy of the raw data.</li>
-									<li>Remove duplicates.</li>
-									<li>Standardize the data.</li>
-									<li>Remove null or blank values</li>
+
+									<li><a href="#staging">Create a Staging Copy</a></li>
+									<li><a href="#duplicates">Remove Duplicates</a></li>
+									<li><a href="#standardize">Standardize the data</a></li>
+									<li><a href="#nullblank">Remove null or blank values</a></li>
+
 								</ol>								
 								<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
 							<h4>top_rated_movies</h4>
@@ -55,8 +57,8 @@
 												<li>vote_average (double)</li>
 												<li>genre (text)</li>
 											</ul>	
-
-							<h3>1.0 Create a Duplicate of the Data</h3>
+							<section id="staging"></section>
+							<h3>1.0 Create a Staging Copy</h3>
 							<p>Before starting to make any edits to the raw date, it is often important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. 
 								If we make a mistake on the staging copy of the data, we can always recopy the original raw data.</p>
 							<pre><code>
@@ -84,8 +86,8 @@ order by title
 ;
 							</code></pre>
 
-
-							<h3>2.0 Removing Duplicates</h3>
+							<section id="duplicates"></section>
+							<h3>2.0 Remove Duplicates</h3>
 							<p>In order to clean raw data we need to remove any duplicate data. This can be achieved by assigning a row number to data and partitioning the data based on any criteria that would indicate duplicate data. 
 								In the interest of making the SQL code easy to read, I typically would use a CTE to partition the data by the values that would indicate there is indeed a duplicate value and then remove only the duplicate data.
 								Also, because MySQL does not support deleting values via a CTE, I create a 2nd staging table.</p>
@@ -145,7 +147,7 @@ drop column row_num
 ;
 							</code></pre>
 
-
+							<section id="standardize"></section>
 							<h3>3.0 Standardize the Data</h3>
 							<p>In order to make the data more readable and usable the next step is to standardize the data. 
 								This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
@@ -197,7 +199,7 @@ where title like 'Sword Art Online%'
 ;
 							</code></pre>
 
-
+							<section id="nullblank"></section>
 							<h3>4.0 Remove Null or Blank Values</h3>
 							<p>While much of the raw data is very useful and can help provide useful insights, some data is simply not included or S.
 								Rather than waste resources on empty or null data fields, it can be be more efficient to remove these.
