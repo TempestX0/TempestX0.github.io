@@ -303,9 +303,53 @@ where name = 'Horse Life 4: My Horse, My Friend, My Champion'
 							<h3>4. Explore the data</h3>
 							<p>
 								Now that the data has been cleaned and missing data has been filled in, it is time to start exploring the data to see what sorts of insights we can find.
+								I will look at the top 10 selling games for Nintendo, Sega, PlayStation, and Xbox platforms.
 							</p>
 							<pre><code>
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'Wii' or platform = '3DS' or platform = 'DS' or platform = 'GB' or 
+    	platform = 'GBA' or platform = 'GC' or platform = 'N64' or platform = 'NES' or 
+    	platform = 'SNES' or platform = 'WiiU'
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'DC' or platform = 'GEN' or platform = 'SCD' or platform = 'SAT' or 
+    	platform = 'GG' or platform = 'GC'     
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'PS' or platform = 'PS2' or platform = 'PS3' or platform = 'PS4' or 
+    	platform = 'PSP' or platform = 'PSV'     
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'X360' or platform = 'XB' or platform = 'XOne'    
+order by global_sales desc
+;
 							</code></pre>	
+							<span class="image"><img src="images/VideoGamesNin.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesSeg.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesPS.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesXb.png" alt="" /></span>
+
+
+							<p>
+								I can see that Wii Sports is one of the best selling games for Nintendo, Kinect Adventures is at the top for Xbox 360, and Sonic the Hedgehog is a best seller for the Sega Genesis.
+								Grand Theft Auto V appears to be a best seller for the PlayStation 3, although unlike the other 3 games it was not included with hardware.
+								It would be nice if this data set indicated if a game was packed in with hardware or not, but that could always be added later as a new column.
+
+							</p>
 						</div>
 					</section>	
 
