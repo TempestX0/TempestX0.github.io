@@ -338,8 +338,10 @@ where
 order by global_sales desc
 ;
 							</code></pre>	
+							<h5>Nintendo and Sega</h5>
 							<span class="image"><img src="images/VideoGamesNin.png" alt="" /></span>
 							<span class="image"><img src="images/VideoGamesSeg.png" alt="" /></span>
+							<h5>Sony and Microsoft</h5>
 							<span class="image"><img src="images/VideoGamesPS.png" alt="" /></span>
 							<span class="image"><img src="images/VideoGamesXB.png" alt="" /></span>
 
@@ -361,11 +363,83 @@ order by global_sales desc
 						<div class="inner">	
 							<h3>5. Join with addtional tables</h3>
 							<p>
-								When joining tables it is important to have some data that can be used to link that data together.
-								Often this could be something specific like an employee id or more general like a video game platform. 
+								When joining tables it is important to have some data that can be used to link the tables together.
+								Often this could be something specific like an employee id or something more general like a video game title. 
+								In this case I will be joining the vgsales_staging2 table with a custom table I created using the game title and game platform.
 							</p>
 							<pre><code>
+# Select the all racing games from both tables where the game title and platform match.
+select `rank`, `name`, vgsales_staging2.platform, Platform_Abv, `year`, vgsales_staging2.genre, publisher, 
+	global_sales, coop, localmp, lanmp, onlinemp, peripheral
+from videogames.vgsales_staging2
+join videogames.games
+	on vgsales_staging2.name = games.game_title and vgsales_staging2.platform = games.platform_abv
+order by vgsales_staging2.name
+;
 							</code></pre>
+							<p>
+								After running the above query, I noticed a few issues that should be corrected. 
+								Firstly, the platform for the game "Mario Kart 8" is indicated to be on the WiiU, when in fact it was only released on the Switch.
+								Secondly, the vgsales table indicates PlayStation 1 platform as "PS", while my Games table uses "PS1" for the same platform.
+								I will set Mario Kart to the Switch and update the vgsales platform from "PS" to "PS1".														
+							</p>
+
+							<pre><code>
+update videogames.vgsales_staging2
+set platform = 'Switch'
+where name = 'Mario Kart 8'
+;
+
+update videogames.vgsales_staging2
+set platform = 'PS1'
+where platform = 'PS'
+;
+							</code></pre>
+							<p>
+								Looking over the data, my table has about 1104 games listed, while the vgsales table has 16324 games. 
+								This means that there are only 171 exact matches between the 2 tables which will limit the results.
+								There appear to be several reasons for this. 
+							</p>
+							<ul>
+								<li>Firstly, there are 9 platforms on vgsales that are not on my games table, while there are 11 plaforms on my table that are not included in vgsales.</li>
+								<li>Secondly, some of the game titles do not match: e.g. "Ghostbusters: The Video Game" vs "Ghostbusters" vs "Ghostbusters (2016)" vs etc...</li>
+								<li>Additionally, vgsales includes multiple versions of the same game, but on different platforms, while my table has mosty games listed for a single platform.</li>
+							</ul>
+							<pre><code>
+select distinct vgsales_staging2.platform, games.Platform_Abv
+from videogames.vgsales_staging2
+left join videogames.games
+on vgsales_staging2.platform = platform_abv
+order by Platform_abv
+;
+
+select distinct vgsales_staging2.platform, games.Platform_Abv
+from videogames.vgsales_staging2
+right join videogames.games
+on vgsales_staging2.platform = platform_abv
+order by Platform
+;
+
+select `rank`, `name`, vgsales_staging2.platform, Platform_Abv, `year`, vgsales_staging2.genre, publisher, 
+	global_sales, coop, localmp, lanmp, onlinemp, peripheral
+from videogames.vgsales_staging2
+left join videogames.games
+	on vgsales_staging2.name like games.game_title and vgsales_staging2.platform = games.platform_abv
+where `name` like 'Ghost%'
+order by vgsales_staging2.name
+;
+
+select `rank`, game_title, games.platform, platform_abv
+from videogames.games
+join videogames.vgsales
+	on vgsales.name = games.game_title
+where game_title like '%Ghostbusters%'
+;
+							</code></pre>
+							<span class="image"><img src="images/VideoGamesPlat1.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesPlat2.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesGhost.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesGhost2.png" alt="" /></span>
 						</div>
 					</section>		
 					<br>
@@ -378,10 +452,30 @@ order by global_sales desc
 						<div class="inner">	
 							<h3>6. Additional data exploration</h3>
 							<p>
-								Now that multiple data tables are connected together, I can further explore the data and find other interesting details.
+								Now that multiple data tables are connected together, I can further explore the data and find other details.
 							</p>
+
 							<pre><code>
+#MOST POPULAR GENRES
+select genre, count(genre)
+from videogames.vgsales
+group by genre
+order by count(genre) desc
+;
+
+#SELECT GAMES WITH A COOP MODE ORDERED BY GLOBAL SALES
+select `rank`, `name`, vgsales_staging2.platform, `year`, vgsales_staging2.genre, publisher, global_sales,
+		coop, localmp, lanmp, onlinemp	
+from videogames.vgsales_staging2
+join videogames.games
+	on vgsales_staging2.name = games.game_title and vgsales_staging2.platform = games.platform_abv
+where coop != 'no' and coop != ''
+order by global_sales desc
+;
 							</code></pre>	
+							<span class="image"><img src="images/VideoGames8.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames9.png" alt="" /></span>
+
 						</div>
 					</section>	
 
@@ -393,8 +487,13 @@ order by global_sales desc
 						<div class="inner">	
 							<h3>7. Create multiple visualizations</h3>
 							<p>
-								Now that I have a good idea of what insights these data sets can provide, I can begin to create some interesting dashboards to highlight this.
+								Now that I have a good idea of what insights these data sets can provide, I can begin to create some interesting dashboards in Tableau to highlight this.
 							</p>
+						<a href="#" class="image fit"><img src="images/VideoGamesViz1.png" alt="" data-position="top center" /></a>
+						<a href="#" class="image fit"><img src="images/VideoGamesViz2.png" alt="" data-position="top center" /></a>
+						<a href="#" class="image fit"><img src="images/VideoGamesViz3.png" alt="" data-position="top center" /></a>
+						<a href="#" class="image fit"><img src="images/VideoGamesViz4.png" alt="" data-position="top center" /></a>
+						<a href="#" class="image fit"><img src="images/VideoGamesViz5.png" alt="" data-position="top center" /></a>						
 						</div>
 					</section>	
 
