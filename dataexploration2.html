@@ -46,7 +46,7 @@
 								<li><a href="#cleaning">Data Cleaning</a></li>
 								<li><a href="#missing">Input missing data</a></li>
 								<li><a href="#exploring1">Explore the data</a></li>
-								<li><a href="#joining">Join with addtional tables</a></li>
+								<li><a href="#joining">Join with additional tables</a></li>
 								<li><a href="#exploring2">Additional data exploration</a></li>
 								<li><a href="#visualizations">Create multiple visualizations</a></li>
 							</ol>
@@ -58,7 +58,7 @@
 						<div class="inner">
 							<h3>1. Create a Staging Copy</h3>
 							<p>
-								Before starting making any changes to this data set it is important to make a staging copy so the original raw data is avaliable.
+								Before starting making any changes to this data set it is important to make a staging copy so the original raw data is available.
 							</p>
 							<pre><code>
 # Remove this table if it already exists
@@ -86,7 +86,7 @@ from videogames.vgsales
 						<div class="inner">				
 							<h3>2. Data Cleaning</h3>
 							<p>
-								Before that data can be used propperly, it is important to clean the data by addressing issues such as duplicates, missing data, incorrect information, and inconsistant formatting.
+								Before that data can be used properly, it is important to clean the data by addressing issues such as duplicates, missing data, incorrect information, and inconsistent formatting.
 							</p>
 							<h4>Duplicates</h4>
 							<p>
@@ -163,13 +163,13 @@ update videogames.vgsales_staging2
 set `name` = trim(`name`), platform = trim(platform), genre = trim(genre), publisher = trim(publisher)
 ;
 							</code></pre>
-							<h4>Inconsistant Naming</h4>
+							<h4>Inconsistent Naming</h4>
 							<p>	
-								Next is to check if all of the publisher data is input correctly and they are using the same name for each unique pulbisher.
+								Next is to check if all of the publisher data is input correctly and they are using the same name for each unique publisher.
 								Going through the output shows this multiple publishers are listed using different names, but should be identical.
 							</p>
 							<pre><code>
-# Display every unique publsher								
+# Display every unique publisher								
 select distinct publisher
 from videogames.vgsales
 order by publisher
@@ -182,15 +182,15 @@ order by publisher
 							<span class="image"><img src="images/VideoGames4.png" alt="" /></span>
 							<span class="image"><img src="images/VideoGames5.png" alt="" /></span>
 							<p>	
-								In these above examples where the data is referring to the same publisher, but is listed differently I will run a quick check to see what the most popular entery is.
-								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH", the first is included once, while the 2nd has 3 enteries.
+								In these above examples where the data is referring to the same publisher, but is listed differently I will run a quick check to see what the most popular entry is.
+								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH", the first is included once, while the 2nd has 3 entries.
 								In this case I will update the 1 to match the other 3. 
 								I will often run an internet search to see what is listed on the company website or some other trusted source to ensure I am using the most accurate title.
 								
 
 							</p>
 							<pre><code>
-# look at all of the different enteries for Ascaron to see which is more common.
+# look at all of the different entries for Ascaron to see which is more common.
 select * 
 from videogames.vgsales_staging2
 where publisher like 'Ascaron%'
@@ -202,7 +202,7 @@ set publisher = 'Ascaron Entertainment'
 where publisher like 'Ascaron%'
 ;
 
-# look at all of the different enteries for Daedalic to see which is more common.
+# look at all of the different entries for Daedalic to see which is more common.
 select * 
 from videogames.vgsales_staging2
 where publisher like 'Daedalic%'
@@ -253,10 +253,10 @@ where name = 'AKB48+Me'
 ;
 							</code></pre>
 							<p>
-								In several cases a game will be developed for release on mulitple systems by the same publisher. 
+								In several cases a game will be developed for release on multiple systems by the same publisher. 
 								In the case of "Time Travelers", the PSP and PS Vita version already have the publisher set correctly, while the 3DS version is currently "unknown".
-								While a quick internet search reveals the publisher to be "Level-5", however I can see the other 2 enteries use "Level 5".
-								Therefore for the 3DS version, I will update the the 3DS version to match the existing publisher name.
+								While a quick internet search reveals the publisher to be "Level-5", however I can see the other 2 entries use "Level 5".
+								Therefore for the 3DS version, I will update the 3DS version to match the existing publisher name.
 							</p>
 							<span class="image"><img src="images/VideoGames6.png" alt="" /></span>
 							<pre><code>
@@ -361,7 +361,7 @@ order by global_sales desc
 				<!-- Joining -->
 					<section id="joining" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">	
-							<h3>5. Join with addtional tables</h3>
+							<h3>5. Join with additional tables</h3>
 							<p>
 								When joining tables it is important to have some data that can be used to link the tables together.
 								Often this could be something specific like an employee id or something more general like a video game title. 
