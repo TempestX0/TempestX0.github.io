@@ -38,7 +38,7 @@
 							<h1 class="major">Data Cleaning</h1>
 							<p>When we first import or access raw data we need to ensure data is ready for analysis.
 								It is important that the data be free of duplicates, irrelevant values, improper formatting, or any other inefficiencies that may negatively impact system performance and data accuracy. 
-								Having a well maintained database with reliable and percise information allows users to make better data driven decisions.
+								Having a well maintained database with reliable and precise information allows users to make better data driven decisions.
 								To facilitate this it is necessary to clean the data which consists of several steps.</p>
 								<ol>
 
@@ -51,7 +51,7 @@
 								<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
 							<h4>top_rated_movies</h4>
 											<ul>
-												<li>populairity (double)</li>
+												<li>popularity (double)</li>
 												<li>release_date (text)</li>
 												<li>title (text)</li>
 												<li>vote_average (double)</li>
@@ -94,7 +94,7 @@ order by title
 							<pre><code>
 # ------------------------------- 2.0 Identify duplicate values -----------------------------------
 
-# Count number of movies with an identical title. Not necessary with this data, but can be helpful determining how to partition the data in the next step.
+# Count number of movies with an identical title. Helpful for determining how to partition the data in the next step.
 select title, count(title)
 from movies.top_rated
 group by title
@@ -177,7 +177,7 @@ alter table video.top_rated_movies_staging2
 modify column release_date date
 ; 
 
-# Detect and fix a varity of formatting, incorrect data, and other display errors.
+# Detect and fix a variety of formatting, incorrect data, and other display errors.
 select *
 from video.top_rated_movies_staging2
 where title like 'TAYLOR SWIFT%'
@@ -202,7 +202,7 @@ where title like 'Sword Art Online%'
 							<section id="nullblank"></section>
 							<h3>4.0 Remove Null or Blank Values</h3>
 							<p>While much of the raw data is very useful and can help provide useful insights, some data is simply not included or S.
-								Rather than waste resources on empty or null data fields, it can be be more efficient to remove these.
+								Rather than waste resources on empty or null data fields, it can be more efficient to remove these.
 							</p>
 							<pre><code>
 select *
