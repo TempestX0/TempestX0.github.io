@@ -36,10 +36,10 @@
 
 
 							<h1 class="major">Data Cleaning</h1>
-							<p>When we first import or access raw data we need to ensure data is ready for analysis.
-								It is important that the data be free of duplicates, irrelevant values, improper formatting, or any other inefficiencies that may negatively impact system performance and data accuracy. 
-								Having a well maintained database with reliable and precise information allows users to make better data driven decisions.
-								To facilitate this it is necessary to clean the data which consists of several steps.</p>
+							<p>When we first import or access raw data, we must ensure that the data is ready for analysis. 
+								The data must be free of duplicates, irrelevant values, improper formatting, or any other inefficiencies that may negatively impact system performance and data accuracy. 
+								Having a well maintained database with reliable and precise information allows users to make better data driven decisions. 
+								To facilitate this, it is necessary to clean the data, which consists of several steps.</p>
 								<ol>
 
 									<li><a href="#staging">Create a Staging Copy</a></li>
@@ -48,7 +48,7 @@
 									<li><a href="#nullblank">Remove null or blank values</a></li>
 
 								</ol>								
-								<p>The following code was written by me and pulled directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
+								<p>I wrote the following code and pulled it directly from my SQL scripts in MySQL. The schema for this project is "video".</p>
 							<h4>top_rated_movies</h4>
 											<ul>
 												<li>popularity (double)</li>
@@ -58,11 +58,11 @@
 												<li>genre (text)</li>
 											</ul>	
 							<section id="staging"></section>
-							<h3>1.0 Create a Staging Copy</h3>
-							<p>Before starting to make any edits to the raw date, it is often important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. 
+							<h3>1. Create a Staging Copy</h3>
+							<p>Before starting to make any changes to the this data set, it is important to make a copy of the data to ensure no data is accidentally destroyed when cleaning. 
 								If we make a mistake on the staging copy of the data, we can always recopy the original raw data.</p>
 							<pre><code>
-# ------------------------------- 1.0 Create staging copy of table -----------------------------------
+# ------------------------------- Create staging copy of table -----------------------------------
 
 # Remove this table if it already exists
 drop table if exists video.top_rated_movies_staging
@@ -87,12 +87,13 @@ order by title
 							</code></pre>
 
 							<section id="duplicates"></section>
-							<h3>2.0 Remove Duplicates</h3>
-							<p>In order to clean raw data we need to remove any duplicate data. This can be achieved by assigning a row number to data and partitioning the data based on any criteria that would indicate duplicate data. 
-								In the interest of making the SQL code easy to read, I typically would use a CTE to partition the data by the values that would indicate there is indeed a duplicate value and then remove only the duplicate data.
+							<h3>2. Remove Duplicates</h3>
+							<p>In order to clean raw data, we need to remove any duplicate data. 
+								This can be achieved by assigning a row number to data and partitioning the data based on any criteria indicating duplicate data. 
+								In the interest of making the SQL code easy to read, I typically would use a CTE to partition the data by the values indicating a duplicate value and then remove only the duplicate data.
 								Also, because MySQL does not support deleting values via a CTE, I create a 2nd staging table.</p>
 							<pre><code>
-# ------------------------------- 2.0 Identify duplicate values -----------------------------------
+# ------------------------------- Identify duplicate values -----------------------------------
 
 # Count number of movies with an identical title. Helpful for determining how to partition the data in the next step.
 select title, count(title)
@@ -112,7 +113,7 @@ select * from duplicate_cte
 where row_num > 1
 ;
 
-# ------------------------------- 2.1 Remove duplicate values -----------------------------------
+# ------------------------------- Remove duplicate values -----------------------------------
 
 # Remove this table if it already exists
 drop table if exists video.top_rated_movies_staging2
@@ -148,14 +149,13 @@ drop column row_num
 							</code></pre>
 
 							<section id="standardize"></section>
-							<h3>3.0 Standardize the Data</h3>
-							<p>In order to make the data more readable and usable the next step is to standardize the data. 
-								This can include making adjustments such as changing "Incorporated" to "Inc.", so the same standard is used throughout the data. 
-								This can also include items such as extras spaces, ALL CAPS, and unnecessary or incompatible punctuation. 
-								It is important to note any columns that contain data that may be used later for joining multiple tables together.</p>
-							<p>Here are a few bits of code that would accomplish several elements of standardizing the data.</p>
+							<h3>3. Standardize the Data</h3>
+							<p>The next step is to standardize the data to make it more readable and usable. 
+								This can include making adjustments such as changing "Incorporated" to "Inc." so the same standard is used throughout the data. 
+								It can also include items such as extra spaces, ALL CAPS, and unnecessary or incompatible punctuation. 
+								It is important to note any columns containing data that may be used later for joining multiple tables.</p>
 							<pre><code>
-# ------------------------------- 3.0 Standardize the Data -----------------------------------
+# ------------------------------- Standardize the Data -----------------------------------
 
 # Trim leading and trailing spaces from the title.
 update video.top_rated_movies_staging2
@@ -200,9 +200,9 @@ where title like 'Sword Art Online%'
 							</code></pre>
 
 							<section id="nullblank"></section>
-							<h3>4.0 Remove Null or Blank Values</h3>
-							<p>While much of the raw data is very useful and can help provide useful insights, some data is simply not included or S.
-								Rather than waste resources on empty or null data fields, it can be more efficient to remove these.
+							<h3>4. Remove Null or Blank Values</h3>
+							<p>While much of the raw data is very useful and can help provide valuable insights, some data is simply not included or missing.
+								Rather than waste resources on empty or null data fields, removing these can be more efficient.
 							</p>
 							<pre><code>
 select *

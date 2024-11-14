@@ -34,7 +34,7 @@
 					<section id="main" class="wrapper">
 						<div class="inner">
 							<h1 class="major">Exploratory Data Analysis</h1>
-							<p>Once we have completed the initial cleaning the data we can begin to explore the data and begin to come up with interesting elements to highlight later on.
+							<p>Once we have completed the initial cleaning of the data, we can explore the data and generate some interesting elements to highlight later.
 								During this process we may uncover additional areas where the data needs to be further cleaned as well as other issues.
 							</p>
 							<ul>
@@ -43,12 +43,12 @@
 								<li>Explore data to find interesting data points.</li>
 								<li>Look for patterns in the data.</li>
 								<li>Not all data will be relevant.</li>
-								<li>Look at the data with a variety of sorting/ordering methods.</li>
+								<li>Look at the data using a variety of sorting/ordering methods.</li>
 							</ul>	
 
-			<h3>1.0 Take a Look at the Data</h3>
-			<p>Before we can really start to create a dashboard or present the data in any meaningful way, we need to take a look at what data is present in our tables and see what potential insights can be found.
-				In the below screenshot we can see that the date, time, location, category, and wind speed are some interesting data points included with this set.
+			<h3>1. Take a Look at the Data</h3>
+			<p>Before we can create a dashboard or present the data in any meaningful way, we need to look at what data is present in our tables and see what potential insights can be found.
+				In the screenshot we can see that the date, time, location, category, and wind speed are some interesting data points included with this set.
 			</p>
 			<a href="#" class="image"><img src="images/Storms1.png" alt="" data-position="top center" /></a>
 			<p>Looking at this data I can already see we can develop multiple insights.</p>
@@ -59,10 +59,10 @@
 			</ul>
 
 
-			<h3>2.0 Write some scripts to pull interesting data points.</h3>
-			<p>Now that we have looked over the data we can begin to write some SQL scripts to pull out interesting data points.
-				This begins to show the areas to focus which will give us the most interesting and relevant data.
-				With the below script we can pull the following insights indicated in the below image.
+			<h3>2. Write some scripts to pull interesting data points.</h3>
+			<p>Now that we have reviewed the data, we can begin to write some SQL scripts to pull out interesting data points.
+				This shows the areas to focus on that will give us the most interesting and relevant data.
+				With the following script, we can pull the following insights indicated in the image below.
 			</p>
 			<pre><code>
 select category, max(wind), max(pressure)
@@ -87,8 +87,8 @@ order by count(year) desc
 			<br>
 			<br>
 			<br>
-			<h3>4.0 Create the final dashboard.</h3>
-			<p>Here is a look at the dashboard I created using this data set.</p>
+			<h3>3. Create the final dashboard.</h3>
+			<p>Here the dashboard I created using this data set.</p>
 				<a href="#" class="image fit"><img src="images/Storms5.png" alt="" data-position="top center" /></a>
 						</div>
 					</section>

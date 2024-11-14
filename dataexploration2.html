@@ -37,9 +37,9 @@
 
 							<h3>Video Game Data</h3>							
 							<p>
-								For this project I start with a vgsales.csv file I downloaded from Kaggle. 
-								I also have some additional tables containing other video game related data I will later join with the vgsales table for some additonal insights.
-								For this project, I have the following objectives...
+								For this project, I start with a vgsales.csv file I downloaded from Kaggle. 
+								I also have some additional tables containing other video game related data I will later join with the vgsales table for some further insights.
+								For this project, I have the following objectives:
 							</p>
 							<ol>
 								<li><a href="#staging">Create a Staging Copy</a></li>
@@ -58,7 +58,7 @@
 						<div class="inner">
 							<h3>1. Create a Staging Copy</h3>
 							<p>
-								Before starting making any changes to this data set it is important to make a staging copy so the original raw data is available.
+								Before starting to make any changes to this data set it is important to make a staging copy so the original raw data is available.
 							</p>
 							<pre><code>
 # Remove this table if it already exists
@@ -86,11 +86,11 @@ from videogames.vgsales
 						<div class="inner">				
 							<h3>2. Data Cleaning</h3>
 							<p>
-								Before that data can be used properly, it is important to clean the data by addressing issues such as duplicates, missing data, incorrect information, and inconsistent formatting.
+								Before that data can be used properly, it is important to clean it by addressing issues such as duplicates, missing data, incorrect information, and inconsistent formatting.
 							</p>
 							<h4>Duplicates</h4>
 							<p>
-								The first item I want do address is to remove any duplicate data.
+								The first item I want do address is removing any duplicate data.
 							</p>
 							<pre><code>
 with duplicate_cte as
