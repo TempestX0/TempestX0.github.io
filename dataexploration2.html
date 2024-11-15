@@ -154,8 +154,8 @@ where row_num > 1
 							</code></pre>
 							<h4>Extra Spaces</h4>
 							<p>
-								Often when data is input using a spreadsheet editor, an extra space will automatically get added to the end of an entry.
-								This can cause data to show up as unique, when it should in fact be identical.
+								Often, when data is input using a spreadsheet editor, an extra space will automatically get added to the end of an entry.
+								This can cause data to show up as unique, when it should be identical.
 							</p>
 							<pre><code>
 # Trim leading and trailing spaces from the title.
@@ -165,8 +165,8 @@ set `name` = trim(`name`), platform = trim(platform), genre = trim(genre), publi
 							</code></pre>
 							<h4>Inconsistent Naming</h4>
 							<p>	
-								Next is to check if all of the publisher data is input correctly and they are using the same name for each unique publisher.
-								Going through the output shows this multiple publishers are listed using different names, but should be identical.
+								Next is to check if all of the publisher data is input correctly and they use the same name for each unique publisher.
+								The output shows this multiple publishers are listed using different names, but should be identical.
 							</p>
 							<pre><code>
 # Display every unique publisher								
@@ -182,10 +182,10 @@ order by publisher
 							<span class="image"><img src="images/VideoGames4.png" alt="" /></span>
 							<span class="image"><img src="images/VideoGames5.png" alt="" /></span>
 							<p>	
-								In these above examples where the data is referring to the same publisher, but is listed differently I will run a quick check to see what the most popular entry is.
-								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH", the first is included once, while the 2nd has 3 entries.
+								In these above examples, where the data is refers to the same publisher and is listed differently I will run a quick check to see what the most popular entry is.
+								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH," the first is included once, while the second has 3 entries.
 								In this case I will update the 1 to match the other 3. 
-								I will often run an internet search to see what is listed on the company website or some other trusted source to ensure I am using the most accurate title.
+								I will often run an internet search to see what is listed on the company website or some other trusted source to ensure I am use the most accurate title.
 								
 
 							</p>
@@ -225,8 +225,8 @@ where publisher like 'Daedalic%'
 							<h3>3. Input Missing Data</h3>
 							<h4></h4>
 							<p>
-								It seems there about 100 games with the publisher listed as "unknown", so this may take some time.
-								The first game on this list is "Gran Turismo Concept 2001 Tokyo" and checking online the publisher is the same as the rest of the Gran Turismo series, "Sony Computer Entertainment".
+								It seems there are about 100 games with the publisher listed as "unknown," so this may take some time.
+								The first game on this list is "Gran Turismo Concept 2001 Tokyo," and checking online the publisher is the same as the rest of the Gran Turismo series, "Sony Computer Entertainment."
 								I would run similar code to update the remaining values.	
 							</p>
 
@@ -253,9 +253,9 @@ where name = 'AKB48+Me'
 ;
 							</code></pre>
 							<p>
-								In several cases a game will be developed for release on multiple systems by the same publisher. 
-								In the case of "Time Travelers", the PSP and PS Vita version already have the publisher set correctly, while the 3DS version is currently "unknown".
-								While a quick internet search reveals the publisher to be "Level-5", however I can see the other 2 entries use "Level 5".
+								In several cases, a game will be developed for release on multiple systems by the same publisher. 
+								In the case of "Time Travelers", the PSP and PS Vita versions already have the publisher set correctly, while the 3DS version is currently "unknown".
+								A quick internet search reveals the publisher to be "Level-5", while the other 2 releases of the game were published by "Level 5".
 								Therefore for the 3DS version, I will update the 3DS version to match the existing publisher name.
 							</p>
 							<span class="image"><img src="images/VideoGames6.png" alt="" /></span>
@@ -272,10 +272,10 @@ where name = 'Time Travelers'
 							</code></pre>	
 							<p>
 								Some games are published by different publishers in varying regions.
-								In the case of "Horse Life 4: My Horse, My Friend, My Champion", the North American publisher is "Independent Arts Software" and the European publisher is "Koch Media".
+								In the case of "Horse Life 4: My Horse, My Friend, My Champion," the North American publisher is "Independent Arts Software," and the European publisher is "Koch Media".
 								Based on the sales data this game is the EU version. 
 								Furthermore, pulling up every game with a title like "Horse Life" reveals the North American version is not included in this dataset.
-								This could be something I can add if necessary, but for now I will just update the publisher for the EU version of Horse Life 4 on the 3DS.
+								This could be something I can add if necessary, but for now I will update the publisher for the EU version of Horse Life 4 on the 3DS.
 							</p>
 							<span class="image"><img src="images/VideoGames7.png" alt="" /></span>
 							<pre><code>
@@ -302,7 +302,7 @@ where name = 'Horse Life 4: My Horse, My Friend, My Champion'
 						<div class="inner">		
 							<h3>4. Explore the data</h3>
 							<p>
-								Now that the data has been cleaned and missing data has been filled in, it is time to start exploring the data to see what sorts of insights we can find.
+								Now that the data has been cleaned and missing data has been filled in, it is time to start exploring the data to see what insights can be found.
 								I will look at the top 10 selling games for Nintendo, Sega, PlayStation, and Xbox platforms.
 							</p>
 							<pre><code>
@@ -348,8 +348,8 @@ order by global_sales desc
 
 							<p>
 								I can see that Wii Sports is one of the best selling games for Nintendo, Kinect Adventures is at the top for Xbox 360, and Sonic the Hedgehog is a best seller for the Sega Genesis.
-								Grand Theft Auto V appears to be a best seller for the PlayStation 3, although unlike the other 3 games it was not included with hardware.
-								It would be nice if this data set indicated if a game was packed in with hardware or not because that would add additional insights to this data.
+								Grand Theft Auto V appears to be a best seller for the PlayStation 3, although unlike the other three games it was not included with hardware.
+								It would be nice if this data set indicated if a game was packed in with hardware because that would add additional insights to this data.
 								Although, if it seems relevant enough that could be added later as a new column.
 
 							</p>
@@ -364,8 +364,8 @@ order by global_sales desc
 							<h3>5. Join with additional tables</h3>
 							<p>
 								When joining tables it is important to have some data that can be used to link the tables together.
-								Often this could be something specific like an employee id or something more general like a video game title. 
-								In this case I will be joining the vgsales_staging2 table with a custom table I created using the game title and game platform.
+								This could be something specific like an employee ID or something more general like a video game title. 
+								In this case, I will join the vgsales_staging2 table with a custom table I created using the game title and game platform.
 							</p>
 							<pre><code>
 # Select the all racing games from both tables where the game title and platform match.
@@ -397,7 +397,7 @@ where platform = 'PS'
 							</code></pre>
 							<p>
 								Looking over the data, my table has about 1104 games listed, while the vgsales table has 16324 games. 
-								This means that there are only 171 exact matches between the 2 tables which will limit the results.
+								This means there are only 171 exact matches between the 2 tables, limiting the results.
 								There appear to be several reasons for this. 
 							</p>
 							<ul>
@@ -452,7 +452,7 @@ where game_title like '%Ghostbusters%'
 						<div class="inner">	
 							<h3>6. Additional data exploration</h3>
 							<p>
-								Now that multiple data tables are connected together, I can further explore the data and find other details.
+								Now that multiple data tables are connected, I can further explore the data and find other details.
 							</p>
 
 							<pre><code>
@@ -487,7 +487,7 @@ order by global_sales desc
 						<div class="inner">	
 							<h3>7. Create multiple visualizations</h3>
 							<p>
-								Now that I have a good idea of what insights these data sets can provide, I can begin to create some interesting dashboards in Tableau to highlight this.
+								Now that I have a good idea of what insights these data sets can provide, I can create some interesting dashboards in Tableau to highlight this.
 							</p>
 						<a href="#" class="image fit"><img src="images/VideoGamesViz1.png" alt="" data-position="top center" /></a>
 						<a href="#" class="image fit"><img src="images/VideoGamesViz2.png" alt="" data-position="top center" /></a>
