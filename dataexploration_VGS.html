@@ -1,0 +1,528 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Video Game Sales</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">BSkidmore</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="dataexploration2.html" class="active">Video Game Sales</a></li>
+	
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Video Game Sales</h1>
+			
+							<p>
+								For this project, I start with a vgsales.csv file I downloaded from Kaggle. 
+								I also have some additional tables containing other video game related data I will later join with the vgsales table for some further insights.
+								For this project, I have the following objectives:
+							</p>
+							<ol>
+								<li><a href="#staging">Create a Staging Copy</a></li>
+								<li><a href="#cleaning">Data Cleaning</a></li>
+								<li><a href="#missing">Input missing data</a></li>
+								<li><a href="#exploring1">Explore the data</a></li>
+								<li><a href="#joining">Join with additional tables</a></li>
+								<li><a href="#exploring2">Additional data exploration</a></li>
+								<li><a href="#visualizations">Create multiple visualizations</a></li>
+							</ol>
+
+
+				
+				<!-- Staging -->
+					<section id="staging" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h3>1. Create a Staging Copy</h3>
+							<p>
+								Before starting to make any changes to this data set it is important to make a staging copy so the original raw data is available.
+							</p>
+							<pre><code>
+# Remove this table if it already exists
+drop table if exists videogames.vgsales_staging
+;
+# Create a staging table identical to top_rated_movies
+create table videogames.vgsales_staging
+like videogames.vgsales
+;
+# Populate the new staging table with all data from the original top_rated_movies
+insert videogames.vgsales_staging
+select *
+from videogames.vgsales
+;
+							</code></pre>
+						</div>
+					</section>
+					<br>
+
+
+
+
+				<!-- Cleaning -->
+					<section id="cleaning">
+						<div class="inner">				
+							<h3>2. Data Cleaning</h3>
+							<p>
+								Before that data can be used properly, it is important to clean it by addressing issues such as duplicates, missing data, incorrect information, and inconsistent formatting.
+							</p>
+							<h4>Duplicates</h4>
+							<p>
+								The first item I want do address is removing any duplicate data.
+							</p>
+							<pre><code>
+with duplicate_cte as
+(
+select *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging
+)
+select * from duplicate_cte
+where row_num > 1
+;
+							</code></pre>
+							<span class="image"><img src="images/VideoGames1.png" alt="" /></span>
+							<p>
+								Here are the duplicates of a Madden NFL game for the PS3 and Need for Speed Most Wanted on PC and Xbox 360.
+								These will need to be removed using the same process I outlined in my Data Cleaning Project.
+							</p>
+							<pre><code>
+# Remove this table if it already exists
+drop table if exists videogames.vgsales_staging2
+;
+
+# Create a staging table identical to top_rated_movies_staging
+create table videogames.vgsales_staging2
+like videogames.vgsales_staging
+;
+
+# Add new row_num column for filtering duplicates
+alter table videogames.vgsales_staging2
+add column row_num int
+;
+
+# Populate the new staging2 table with all data from the first staging top_rated_movies table, including row_num.
+insert into videogames.vgsales_staging2
+SELECT *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging
+;
+
+# Duplicate values (indicated by row_num) are deleted.
+delete
+from videogames.vgsales_staging2
+where row_num > 1
+;
+
+# Remove the row_num colum from the table since it is no longer needed.
+alter table videogames.vgsales_staging2
+drop column row_num
+;
+
+# Verify duplicates have been removed
+with duplicate_cte as
+(
+select *,
+row_number()Over(partition by `name`, platform)as row_num
+from videogames.vgsales_staging2
+)
+select * from duplicate_cte
+where row_num > 1
+;
+							</code></pre>
+							<h4>Extra Spaces</h4>
+							<p>
+								Often, when data is input using a spreadsheet editor, an extra space will automatically get added to the end of an entry.
+								This can cause data to show up as unique, when it should be identical.
+							</p>
+							<pre><code>
+# Trim leading and trailing spaces from the title.
+update videogames.vgsales_staging2
+set `name` = trim(`name`), platform = trim(platform), genre = trim(genre), publisher = trim(publisher)
+;
+							</code></pre>
+							<h4>Inconsistent Naming</h4>
+							<p>	
+								Next is to check if all of the publisher data is input correctly and they use the same name for each unique publisher.
+								The output shows this multiple publishers are listed using different names, but should be identical.
+							</p>
+							<pre><code>
+# Display every unique publisher								
+select distinct publisher
+from videogames.vgsales
+order by publisher
+;
+							</code></pre>
+
+
+							<span class="image"><img src="images/VideoGames2.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames3.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames4.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames5.png" alt="" /></span>
+							<p>	
+								In these above examples, where the data is refers to the same publisher and is listed differently I will run a quick check to see what the most popular entry is.
+								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH," the first is included once, while the second has 3 entries.
+								In this case I will update the 1 to match the other 3. 
+								I will often run an internet search to see what is listed on the company website or some other trusted source to ensure I am use the most accurate title.
+								
+
+							</p>
+							<pre><code>
+# look at all of the different entries for Ascaron to see which is more common.
+select * 
+from videogames.vgsales_staging2
+where publisher like 'Ascaron%'
+;
+
+# update any publisher starting with "Ascaron" and change it to "Ascaron Entertainment".
+update videogames.vgsales_staging2
+set publisher = 'Ascaron Entertainment'
+where publisher like 'Ascaron%'
+;
+
+# look at all of the different entries for Daedalic to see which is more common.
+select * 
+from videogames.vgsales_staging2
+where publisher like 'Daedalic%'
+;
+
+# update publisher information to "Daedalic Entertainment"
+update videogames.vgsales_staging2
+set publisher = 'Daedalic Entertainment'
+where publisher like 'Daedalic%'
+;
+							</code></pre>
+						</div>
+					</section>
+
+
+
+				<!-- Missing -->
+					<section id="missing" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>3. Input Missing Data</h3>
+							<h4></h4>
+							<p>
+								It seems there are about 100 games with the publisher listed as "unknown," so this may take some time.
+								The first game on this list is "Gran Turismo Concept 2001 Tokyo," and checking online the publisher is the same as the rest of the Gran Turismo series, "Sony Computer Entertainment."
+								I would run similar code to update the remaining values.	
+							</p>
+
+							<pre><code>
+select *
+from videogames.vgsales
+where publisher = 'Unknown'
+order by platform
+;
+
+update videogames.vgsales
+set publisher = 'Sony Computer Entertainment'
+where name = 'Gran Turismo Concept 2001 Tokyo'
+;
+
+update videogames.vgsales_staging2
+set publisher = 'Nintendo'
+where name = 'Ultimate NES Remix'
+;
+
+update videogames.vgsales_staging2
+set publisher = 'Kadokawa Shoten'
+where name = 'AKB48+Me'
+;
+							</code></pre>
+							<p>
+								In several cases, a game will be developed for release on multiple systems by the same publisher. 
+								In the case of "Time Travelers", the PSP and PS Vita versions already have the publisher set correctly, while the 3DS version is currently "unknown".
+								A quick internet search reveals the publisher to be "Level-5", while the other 2 releases of the game were published by "Level 5".
+								Therefore for the 3DS version, I will update the 3DS version to match the existing publisher name.
+							</p>
+							<span class="image"><img src="images/VideoGames6.png" alt="" /></span>
+							<pre><code>
+select *
+from videogames.vgsales_staging2
+where name like 'Time Travelers'
+;
+
+update videogames.vgsales_staging2
+set publisher = 'Level 5'
+where name = 'Time Travelers'
+;
+							</code></pre>	
+							<p>
+								Some games are published by different publishers in varying regions.
+								In the case of "Horse Life 4: My Horse, My Friend, My Champion," the North American publisher is "Independent Arts Software," and the European publisher is "Koch Media".
+								Based on the sales data this game is the EU version. 
+								Furthermore, pulling up every game with a title like "Horse Life" reveals the North American version is not included in this dataset.
+								This could be something I can add if necessary, but for now I will update the publisher for the EU version of Horse Life 4 on the 3DS.
+							</p>
+							<span class="image"><img src="images/VideoGames7.png" alt="" /></span>
+							<pre><code>
+
+select *
+from videogames.vgsales_staging2
+where name like '%Horse Life%'
+;	
+
+update videogames.vgsales_staging2
+set publisher = 'Koch Media'
+where name = 'Horse Life 4: My Horse, My Friend, My Champion'
+;
+	
+							</code></pre>
+						</div>
+					</section>	
+					<br>
+
+
+
+				<!-- Exploring -->
+					<section id="exploring1">
+						<div class="inner">		
+							<h3>4. Explore the data</h3>
+							<p>
+								Now that the data has been cleaned and missing data has been filled in, it is time to start exploring the data to see what insights can be found.
+								I will look at the top 10 selling games for Nintendo, Sega, PlayStation, and Xbox platforms.
+							</p>
+							<pre><code>
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'Wii' or platform = '3DS' or platform = 'DS' or platform = 'GB' or 
+    	platform = 'GBA' or platform = 'GC' or platform = 'N64' or platform = 'NES' or 
+    	platform = 'SNES' or platform = 'WiiU'
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'DC' or platform = 'GEN' or platform = 'SCD' or platform = 'SAT' or 
+    	platform = 'GG' or platform = 'GC'     
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'PS' or platform = 'PS2' or platform = 'PS3' or platform = 'PS4' or 
+    	platform = 'PSP' or platform = 'PSV'     
+order by global_sales desc
+;
+
+select `rank`, `name`, platform, `year`, genre, global_sales
+from videogames.vgsales_staging2
+where 
+	platform = 'X360' or platform = 'XB' or platform = 'XOne'    
+order by global_sales desc
+;
+							</code></pre>	
+							<h5>Nintendo and Sega</h5>
+							<span class="image"><img src="images/VideoGamesNin.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesSeg.png" alt="" /></span>
+							<h5>Sony and Microsoft</h5>
+							<span class="image"><img src="images/VideoGamesPS.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesXB.png" alt="" /></span>
+
+
+							<p>
+								I can see that Wii Sports is one of the best selling games for Nintendo, Kinect Adventures is at the top for Xbox 360, and Sonic the Hedgehog is a best seller for the Sega Genesis.
+								It is interesting to note that all of these games were at a time included with the console hardware, so that would clearly have an impact on global sales.
+								It would be nice if this data set included such informaiton, but if deemed important enough it could be added later as a new column.
+							</p>
+						</div>
+					</section>	
+
+
+
+				<!-- Joining -->
+					<section id="joining" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>5. Join with additional tables</h3>
+							<p>
+								When joining tables it is important to have some data that can be used to link the tables together.
+								This could be something specific like an employee ID or something more general like a video game title. 
+								In this case, I will join the vgsales_staging2 table with a custom table I created using the game title and game platform.
+							</p>
+							<pre><code>
+# Select the all racing games from both tables where the game title and platform match.
+select `rank`, `name`, vgsales_staging2.platform, Platform_Abv, `year`, vgsales_staging2.genre, publisher, 
+	global_sales, coop, localmp, lanmp, onlinemp, peripheral
+from videogames.vgsales_staging2
+join videogames.games
+	on vgsales_staging2.name = games.game_title and vgsales_staging2.platform = games.platform_abv
+order by vgsales_staging2.name
+;
+							</code></pre>
+							<p>
+								After running the above query, I noticed a few issues that should be corrected. 
+								Firstly, the platform for the game "Mario Kart 8" is indicated to be on the WiiU, when in fact it was only released on the Switch.
+								Secondly, the vgsales table indicates PlayStation 1 platform as "PS", while my Games table uses "PS1" for the same platform.
+								I will set Mario Kart to the Switch and update the vgsales platform from "PS" to "PS1".														
+							</p>
+
+							<pre><code>
+update videogames.vgsales_staging2
+set platform = 'Switch'
+where name = 'Mario Kart 8'
+;
+
+update videogames.vgsales_staging2
+set platform = 'PS1'
+where platform = 'PS'
+;
+							</code></pre>
+							<p>
+								Looking over the data, my table has about 1104 games listed, while the vgsales table has 16324 games. 
+								This means there are only 171 exact matches between the 2 tables, limiting the results.
+								There appear to be several reasons for this. 
+							</p>
+							<ul>
+								<li>Firstly, there are 9 platforms on vgsales that are not on my games table, while there are 11 plaforms on my table that are not included in vgsales. I will be updating my table to include the missing platforms.</li>
+								<li>Secondly, some of the game titles do not match: e.g. "Ghostbusters: The Video Game" vs "Ghostbusters" vs "Ghostbusters (2016)" vs etc... This can be addressed with some fine tuning with LIKE statments.</li>
+								<li>Additionally, vgsales includes multiple versions of the same game, but on different platforms, while my table has mosty games listed for a single platform.</li>
+							</ul>
+							<pre><code>
+select distinct vgsales_staging2.platform, games.Platform_Abv
+from videogames.vgsales_staging2
+left join videogames.games
+on vgsales_staging2.platform = platform_abv
+order by Platform_abv
+;
+
+select distinct vgsales_staging2.platform, games.Platform_Abv
+from videogames.vgsales_staging2
+right join videogames.games
+on vgsales_staging2.platform = platform_abv
+order by Platform
+;
+
+select `rank`, `name`, vgsales_staging2.platform, Platform_Abv, `year`, vgsales_staging2.genre, publisher, 
+	global_sales, coop, localmp, lanmp, onlinemp, peripheral
+from videogames.vgsales_staging2
+left join videogames.games
+	on vgsales_staging2.name like games.game_title and vgsales_staging2.platform = games.platform_abv
+where `name` like 'Ghost%'
+order by vgsales_staging2.name
+;
+
+select `rank`, game_title, games.platform, platform_abv
+from videogames.games
+join videogames.vgsales
+	on vgsales.name = games.game_title
+where game_title like '%Ghost%'
+;
+							</code></pre>
+							<span class="image"><img src="images/VideoGamesPlat1.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesPlat2.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesGhost.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGamesGhost2.png" alt="" /></span>
+						</div>
+					</section>		
+					<br>
+
+
+
+
+				<!-- Exploring2 -->
+					<section id="exploring2">
+						<div class="inner">	
+							<h3>6. Additional data exploration</h3>
+							<p>
+								Now that multiple data tables are connected, I can further explore the data and find other details.
+							</p>
+
+							<pre><code>
+#MOST POPULAR GENRES
+select genre, count(genre)
+from videogames.vgsales
+group by genre
+order by count(genre) desc
+;
+
+#SELECT GAMES WITH A COOP MODE ORDERED BY GLOBAL SALES
+select `rank`, `name`, vgsales_staging2.platform, `year`, vgsales_staging2.genre, publisher, global_sales,
+		coop, localmp, lanmp, onlinemp	
+from videogames.vgsales_staging2
+join videogames.games
+	on vgsales_staging2.name = games.game_title and vgsales_staging2.platform = games.platform_abv
+where coop != 'no' and coop != ''
+order by global_sales desc
+;
+							</code></pre>	
+							<span class="image"><img src="images/VideoGames8.png" alt="" /></span>
+							<span class="image"><img src="images/VideoGames9.png" alt="" /></span>
+
+						</div>
+					</section>	
+
+
+
+
+				<!-- Visualizations -->
+					<section id="visualizations" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">	
+							<h3>7. Create multiple visualizations</h3>
+							<p>
+								Now that I have a good idea of what insights these data sets can provide, I can create some interesting dashboards in Tableau to highlight this.
+							</p>
+						<a href="images/VideoGamesViz1.png" class="image fit"><img src="images/VideoGamesViz1.png" alt="" data-position="top center" /></a>
+						<a href="images/VideoGamesViz2.png" class="image fit"><img src="images/VideoGamesViz2.png" alt="" data-position="top center" /></a>
+						<a href="images/VideoGamesViz3.png" class="image fit"><img src="images/VideoGamesViz3.png" alt="" data-position="top center" /></a>
+						<a href="images/VideoGamesViz4.png" class="image fit"><img src="images/VideoGamesViz4.png" alt="" data-position="top center" /></a>
+						<a href="images/VideoGamesViz5.png" class="image fit"><img src="images/VideoGamesViz5.png" alt="" data-position="top center" /></a>	
+						<a href="images/VideoGamesViz6.png" class="image fit"><img src="images/VideoGamesViz6.png" alt="" data-position="top center" /></a>	
+						<a href="images/VideoGamesViz7.png" class="image fit"><img src="images/VideoGamesViz7.png" alt="" data-position="top center" /></a>			
+						<a href="images/VideoGamesViz8.png" class="image fit"><img src="images/VideoGamesViz8.png" alt="" data-position="top center" /></a>	
+						<a href="images/VideoGamesViz9.png" class="image fit"><img src="images/VideoGamesViz9.png" alt="" data-position="top center" /></a>					
+						<a href="images/VideoGamesViz10.png" class="image fit"><img src="images/VideoGamesViz10.png" alt="" data-position="top center" /></a>											
+						</div>
+					</section>	
+
+	
+
+
+
+			</div>
+
+
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Tempest Inc. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
