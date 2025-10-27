@@ -18,11 +18,12 @@
 			<header id="header">
 				<a href="index.html" class="title">BSkidmore</a>
 				<nav>
-					<ul>
-						<li><a href="index.html">Home</a></li>
-						<li><a href="dataanalytics.html" class="active">Data Analytics</a></li>
-	
-					</ul>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="dataanalytics.html">Data Analytics</a></li>
+				<li><a href="qualityassurance.html">Quality Assurance</a></li>
+				<li><a href="python.html">Python</a></li>
+			</ul>
 				</nav>
 			</header>
 
@@ -101,7 +102,7 @@ select * from duplicate_cte
 where row_num > 1
 ;
 							</code></pre>
-							<span class="image"><img src="images/VideoGames1.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames1.png" alt="" /></span>
 							<p>
 								Here are the duplicates of a Madden NFL game for the PS3 and Need for Speed Most Wanted on PC and Xbox 360.
 								These will need to be removed using the same process I outlined in my Data Cleaning Project.
@@ -175,10 +176,10 @@ order by publisher
 							</code></pre>
 
 
-							<span class="image"><img src="images/VideoGames2.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGames3.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGames4.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGames5.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames2.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames3.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames4.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames5.png" alt="" /></span>
 							<p>	
 								In these above examples, where the data is refers to the same publisher and is listed differently I will run a quick check to see what the most popular entry is.
 								In the case of "Ascaron Entertainment" vs "Ascaron Entertainment GmbH," the first is included once, while the second has 3 entries.
@@ -256,7 +257,7 @@ where name = 'AKB48+Me'
 								A quick internet search reveals the publisher to be "Level-5", while the other 2 releases of the game were published by "Level 5".
 								Therefore for the 3DS version, I will update the 3DS version to match the existing publisher name.
 							</p>
-							<span class="image"><img src="images/VideoGames6.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames6.png" alt="" /></span>
 							<pre><code>
 select *
 from videogames.vgsales_staging2
@@ -275,7 +276,7 @@ where name = 'Time Travelers'
 								Furthermore, pulling up every game with a title like "Horse Life" reveals the North American version is not included in this dataset.
 								This could be something I can add if necessary, but for now I will update the publisher for the EU version of Horse Life 4 on the 3DS.
 							</p>
-							<span class="image"><img src="images/VideoGames7.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames7.png" alt="" /></span>
 							<pre><code>
 
 select *
@@ -337,11 +338,11 @@ order by global_sales desc
 ;
 							</code></pre>	
 							<h5>Nintendo and Sega</h5>
-							<span class="image"><img src="images/VideoGamesNin.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGamesSeg.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesNin.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesSeg.png" alt="" /></span>
 							<h5>Sony and Microsoft</h5>
-							<span class="image"><img src="images/VideoGamesPS.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGamesXB.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesPS.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesXB.png" alt="" /></span>
 
 
 							<p>
@@ -432,10 +433,10 @@ join videogames.vgsales
 where game_title like '%Ghost%'
 ;
 							</code></pre>
-							<span class="image"><img src="images/VideoGamesPlat1.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGamesPlat2.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGamesGhost.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGamesGhost2.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesPlat1.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesPlat2.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesGhost.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGamesGhost2.png" alt="" /></span>
 						</div>
 					</section>		
 					<br>
@@ -469,8 +470,8 @@ where coop != 'no' and coop != ''
 order by global_sales desc
 ;
 							</code></pre>	
-							<span class="image"><img src="images/VideoGames8.png" alt="" /></span>
-							<span class="image"><img src="images/VideoGames9.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames8.png" alt="" /></span>
+							<span class="image"><img src="assets/images/VideoGames9.png" alt="" /></span>
 
 						</div>
 					</section>	
@@ -485,15 +486,15 @@ order by global_sales desc
 							<p>
 								Now that I have a good idea of what insights these data sets can provide, I can create some interesting dashboards in Tableau to highlight this.
 							</p>
-						<a href="images/VGSDashboard.png" class="image fit"><img src="images/VGSDashboard.png" alt="" data-position="top center" /></a>
-						<a href="images/VGSDashboardSony.png" class="image fit"><img src="images/VGSDashboardSony.png" alt="" data-position="top center" /></a>
-						<a href="images/VGSDashboardNintendo.png" class="image fit"><img src="images/VGSDashboardNintendo.png" alt="" data-position="top center" /></a>
-						<a href="images/VGSDashboardMicrosoft.png" class="image fit"><img src="images/VGSDashboardMicrosoft.png" alt="" data-position="top center" /></a>					
-						<a href="images/VGSDashboardOther.png" class="image fit"><img src="images/VGSDashboardOther.png" alt="" data-position="top center" /></a>											
-						<a href="images/VGSDashboardSega.png" class="image fit"><img src="images/VGSDashboardSega.png" alt="" data-position="top center" /></a>
-						<a href="images/VGSDetails.png" class="image fit"><img src="images/VGSDetails.png" alt="" data-position="top center" /></a>
-						<a href="images/VGSVGSDashboard (2).png" class="image fit"><img src="images/VGSDashboard (2).png" alt="" data-position="top center" /></a>
-							<a href="images/VideoGamesRacing.png" class="image fit"><img src="images/VideoGamesRacing.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSDashboard.png" class="image fit"><img src="assets/images/VGSDashboard.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSDashboardSony.png" class="image fit"><img src="assets/images/VGSDashboardSony.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSDashboardNintendo.png" class="image fit"><img src="assets/images/VGSDashboardNintendo.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSDashboardMicrosoft.png" class="image fit"><img src="assets/images/VGSDashboardMicrosoft.png" alt="" data-position="top center" /></a>					
+						<a href="assets/images/VGSDashboardOther.png" class="image fit"><img src="assets/images/VGSDashboardOther.png" alt="" data-position="top center" /></a>											
+						<a href="assets/images/VGSDashboardSega.png" class="image fit"><img src="assets/images/VGSDashboardSega.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSDetails.png" class="image fit"><img src="assets/images/VGSDetails.png" alt="" data-position="top center" /></a>
+						<a href="assets/images/VGSVGSDashboard (2).png" class="image fit"><img src="assets/images/VGSDashboard (2).png" alt="" data-position="top center" /></a>
+							<a href="assets/images/VideoGamesRacing.png" class="image fit"><img src="assets/images/VideoGamesRacing.png" alt="" data-position="top center" /></a>
 
 						</div>
 					</section>	
